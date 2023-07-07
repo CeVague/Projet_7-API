@@ -34,6 +34,16 @@ def explain_client(client_line):
     
     return client_line_explained
 
+@app.route('/predict', methods=['GET'])
+def get_client_prediction():
+    client_line = request.json['data']
+    client_line = pd.read_json(client_line, typ='series')
+    
+    client_line_scaled = scaler.transform([client_line[list(columns)]])
+    prediction = model.predict_proba(client_line_scaled)[0, 1]
+    
+    return jsonify({"result": 1 if prediction>0.09 else 0, "result_proba": prediction})
+
 @app.route('/dataframe', methods=['GET'])
 def get_client_dataframe():
     client_line = request.json['data']
