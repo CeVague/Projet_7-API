@@ -55,6 +55,36 @@ def get_client_prediction():
     # Conversion de la ligne client reçu en une Series
     client_line = pd.read_json(client_line, typ="series")
 
+    df = pd.to_numeric(client_line, errors="coerce")
+    # ----- Recombinaison de certaines features ------
+    client_line["DAYS_EMPLOYED_PERC"] = df["DAYS_EMPLOYED"] / df["DAYS_BIRTH"]
+    client_line["INCOME_CREDIT_PERC"] = df["AMT_INCOME_TOTAL"] / df["AMT_CREDIT"]
+    client_line["INCOME_PER_PERSON"] = df["AMT_INCOME_TOTAL"] / df["CNT_FAM_MEMBERS"]
+    client_line["ANNUITY_INCOME_PERC"] = df["AMT_ANNUITY"] / df["AMT_INCOME_TOTAL"]
+    client_line["PAYMENT_RATE"] = df["AMT_ANNUITY"] / df["AMT_CREDIT"]
+    client_line["EXT_SOURCE_MEAN_x_DAYS_EMPLOYED"] = (
+        df["EXT_SOURCE_MEAN"] * df["DAYS_EMPLOYED"]
+    )
+    client_line["AMT_CREDIT_-_AMT_GOODS_PRICE"] = (
+        df["AMT_CREDIT"] - df["AMT_GOODS_PRICE"]
+    )
+    client_line["AMT_CREDIT_r_AMT_GOODS_PRICE"] = (
+        df["AMT_CREDIT"] / df["AMT_GOODS_PRICE"]
+    )
+    client_line["AMT_CREDIT_r_AMT_ANNUITY"] = df["AMT_CREDIT"] / df["AMT_ANNUITY"]
+    client_line["AMT_CREDIT_r_AMT_INCOME_TOTAL"] = (
+        df["AMT_CREDIT"] / df["AMT_INCOME_TOTAL"]
+    )
+    client_line["AMT_INCOME_TOTAL_r_12_-_AMT_ANNUITY"] = (
+        df["AMT_INCOME_TOTAL"] / 12.0 - df["AMT_ANNUITY"]
+    )
+    client_line["AMT_INCOME_TOTAL_r_AMT_ANNUITY"] = (
+        df["AMT_INCOME_TOTAL"] / df["AMT_ANNUITY"]
+    )
+    client_line["CNT_CHILDREN_r_CNT_FAM_MEMBERS"] = (
+        df["CNT_CHILDREN"] / df["CNT_FAM_MEMBERS"]
+    )
+
     # Scalling
     client_line_scaled = scaler.transform([client_line[list(columns)]])
     # Lancement du modèle et récupératiob de la probabilité d'être refusé
