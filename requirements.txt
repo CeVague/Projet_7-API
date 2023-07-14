@@ -1,6 +1,6 @@
 Flask
 pandas
 matplotlib
-scikit-learn
-shap
-lightgbm
+scikit-learn==1.2.2
+shap==0.41.0
+lightgbm==3.3.5
