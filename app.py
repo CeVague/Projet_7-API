@@ -40,39 +40,6 @@ with open('./data/explainer.pkl', 'rb') as f:
 def index():
     return jsonify({"message": "hello world"})
 
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except :
-        return False
-
-def preprocess_client(df):
-    dff = pd.Series(index=df.index)
-    
-    for i, v in df.items():
-        if is_number(v):
-            dff[i] = float(v)
-    
-    df["DAYS_EMPLOYED_PERC"] = dff["DAYS_EMPLOYED"] / dff["DAYS_BIRTH"]
-    df["INCOME_CREDIT_PERC"] = dff["AMT_INCOME_TOTAL"] / dff["AMT_CREDIT"]
-    df["INCOME_PER_PERSON"] = dff["AMT_INCOME_TOTAL"] / dff["CNT_FAM_MEMBERS"]
-    df["ANNUITY_INCOME_PERC"] = dff["AMT_ANNUITY"] / dff["AMT_INCOME_TOTAL"]
-    df["PAYMENT_RATE"] = dff["AMT_ANNUITY"] / dff["AMT_CREDIT"]
-    
-    df["EXT_SOURCE_MEAN_x_DAYS_EMPLOYED"] = dff["EXT_SOURCE_MEAN"] * dff["DAYS_EMPLOYED"]
-    df["AMT_CREDIT_-_AMT_GOODS_PRICE"] = dff["AMT_CREDIT"] - dff["AMT_GOODS_PRICE"]
-    df["AMT_CREDIT_r_AMT_GOODS_PRICE"] = dff["AMT_CREDIT"] / dff["AMT_GOODS_PRICE"]
-    df["AMT_CREDIT_r_AMT_ANNUITY"] = dff["AMT_CREDIT"] / dff["AMT_ANNUITY"]
-    df["AMT_CREDIT_r_AMT_INCOME_TOTAL"] = dff["AMT_CREDIT"] / dff["AMT_INCOME_TOTAL"]
-    df["AMT_INCOME_TOTAL_r_12_-_AMT_ANNUITY"] = (
-        dff["AMT_INCOME_TOTAL"] / 12.0 - dff["AMT_ANNUITY"]
-    )
-    df["AMT_INCOME_TOTAL_r_AMT_ANNUITY"] = dff["AMT_INCOME_TOTAL"] / dff["AMT_ANNUITY"]
-    df["CNT_CHILDREN_r_CNT_FAM_MEMBERS"] = dff["CNT_CHILDREN"] / dff["CNT_FAM_MEMBERS"]
-    
-    return df
-
 # Fonction de prédiction de l'acceptation ou du refus d'un client
 # Prends dans le GET une ligne client au format JSON, et retourne 
 # la prédiction au format binaire ainsi que la version probabilistique
@@ -82,8 +49,6 @@ def get_client_prediction():
     client_line = request.json['data']
     # Conversion de la ligne client reçu en une Series
     client_line = pd.read_json(client_line, typ='series')
-    
-    client_line = preprocess_client(client_line)
     
     # Scalling
     client_line_scaled = scaler.transform([client_line[list(columns)]])
