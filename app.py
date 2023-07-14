@@ -86,7 +86,8 @@ def get_client_prediction():
     )
 
     # Scalling
-    client_line_scaled = scaler.transform([client_line[list(columns)]])
+    client_line = client_line[list(columns)].to_frame().T
+    client_line_scaled = scaler.transform(client_line)
     # Lancement du modèle et récupératiob de la probabilité d'être refusé
     prediction = model.predict_proba(client_line_scaled)[0, 1]
 
@@ -106,7 +107,8 @@ def explain_client(client_line):
     client_line = pd.read_json(client_line, typ="series")
 
     # Scalling de la ligne client
-    client_line_scaled = scaler.transform([client_line[list(columns)]])
+    client_line = client_line[list(columns)].to_frame().T
+    client_line_scaled = scaler.transform(client_line)
     # Explication par SHAP du choix du modele
     client_line_explained = explainer(client_line_scaled)
 
